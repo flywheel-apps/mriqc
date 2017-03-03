@@ -1,11 +1,6 @@
 # flywheel/mriqc
 
-# External Dependencies for MRIQC
-#  FSL
-#  N4ITK bias correcton released with ANTs
-#  AFNI
-
-# start with ubuntu // Or do we use our freesurfer docker container?
+# Get the MRIQC algorithm from Docker
 FROM poldracklab/mriqc:0.9.0-0
 
 # Make directory for flywheel spec (v0)
