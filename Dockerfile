@@ -6,7 +6,7 @@ FROM poldracklab/mriqc:0.9.0-0
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0
 RUN mkdir -p ${FLYWHEEL}
-COPY run.sh ${FLYWHEEL}/run
+COPY run ${FLYWHEEL}/run
 COPY manifest.json ${FLYWHEEL}/manifest.json
 
 # Install wget
