@@ -12,7 +12,7 @@
     }, 
     "description": "The package provides a series of image processing workflows to extract and compute a series of NR (no-reference), IQMs (image quality metrics) to be used in QAPs (quality assessment protocols) for MRI (magnetic resonance imaging). This tool extracts a series of IQMs from structural or functional MRI data. Note, this gear only supports the generation of individual scan reports; group reports are not generated.", 
     "inputs": {
-        "input": {
+        "nifti": {
             "base": "file", 
             "type": {
                 "enum": [

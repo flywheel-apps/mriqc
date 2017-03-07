@@ -4,7 +4,7 @@
 
 # Define directory names and containers
 FLYWHEEL_BASE=/flywheel/v0
-INPUT_DIR=$FLYWHEEL_BASE/input
+INPUT_DIR=$FLYWHEEL_BASE/input/nifti
 ROOTOUT_DIR=$FLYWHEEL_BASE/output
 OUTPUT_DIR=$ROOTOUT_DIR/out
 WORKING_DIR=$ROOTOUT_DIR/work
