@@ -6,7 +6,7 @@ Image quality metrics for quality assessment of MRI
 Build context for a [Flywheel Gear](https://github.com/flywheel-io/gears/tree/master/spec) which runs the `mriqc` tool (v0.9.0-0).
 For more information see [MRIQC's documentation](http://mriqc.readthedocs.io/en/0.9.0-0/)
 
-* TODO: Make a note about the functionality that is in the Flywheel Gear
+* Currently, this Flywheel MRIQC gear only allows Functional MRI images as input
 * You can change ```build.sh``` to edit the repository name for the image (default=`flywheel/mriqc`).
 * The resulting image is ~5GB
 
