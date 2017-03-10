@@ -12,6 +12,10 @@ LOG_FILE=/flywheel/v0/output/mriqc.log
 
 (
   CONTAINER='[flywheel/mriqc]'
+  
+  # Configure the ENV according to the original Docker image
+  source ${FLYWHEEL_BASE}/docker-env.sh
+  
   # Check if the input directory is not empty
   if [[ "$(ls -A $INPUT_DIR)" ]] ; then
       echo "$CONTAINER  Starting..."

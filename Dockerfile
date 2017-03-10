@@ -15,5 +15,8 @@ RUN apt-get update && apt-get -y install wget
 RUN wget -N -qO- -O /usr/bin/jq http://stedolan.github.io/jq/download/linux64/jq
 RUN chmod +x /usr/bin/jq
 
+# ENV preservation for Flywheel Engine
+RUN env -u HOSTNAME -u PWD > ${FLYWHEEL}/docker-env.sh
+
 # Set the entrypoint
 ENTRYPOINT ["/flywheel/v0/run"]
