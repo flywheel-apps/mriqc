@@ -1,11 +1,6 @@
 {
     "author": "Poldrack Lab at Stanford University", 
     "config": {
-        "intent": {
-            "default": "Functional", 
-            "description": "The intent of the input file. Value can be either Functional or Structural.", 
-            "type": "string"
-        }
     }, 
     "custom": {
         "docker-image": "flywheel/mriqc:v0.1"
