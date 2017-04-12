@@ -89,6 +89,7 @@ if [[ -z $outputs ]]
         echo "No results found in output directory... Exiting"
         exit 1
     else
+        echo -e "{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$filename'_mriqc.qa.html'"\", \"type\": \"qa\", \"measurements\": [\"Functional\"]}]}}" > $ROOTOUT_DIR/.metadata.json
         chmod -R 777 $ROOTOUT_DIR
         echo -e "Wrote: `ls $ROOTOUT_DIR`"
 fi
