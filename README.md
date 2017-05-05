@@ -6,7 +6,7 @@ Image quality metrics for quality assessment of MRI
 Build context for a [Flywheel Gear](https://github.com/flywheel-io/gears/tree/master/spec) which runs the `mriqc` tool (v0.9.0-0).
 For more information see [MRIQC's documentation](http://mriqc.readthedocs.io/en/0.9.0-0/)
 
-* Currently, this Flywheel MRIQC gear only allows Functional MRI images as input
+* This Flywheel MRIQC gear allows either a Structural (T1w or T2w) or Functional MRI image as input
 * You can change ```build.sh``` to edit the repository name for the image (default=`flywheel/mriqc`).
 * The resulting image is ~5GB
 
@@ -21,12 +21,13 @@ git clone https://github.com/flywheel-apps/mriqc
 To run the `mriqc` command in this image on your local instance, do the following:
 ```
 docker run --rm -ti \
-  -v </path/to/input/data>:/flywheel/v0/input/ \
+  -v </path/to/input/data>:/flywheel/v0/input/nifti \
   -v </path/for/output/data>:/flywheel/v0/output \
   flywheel/mriqc
 ```
 Usage notes:
-  * You are mounting the directory (using the ```-v``` flag) which contains the input data in the container at ```/flywheel/v0/input/``` and mounting the directory where you want your output data within the container at ```/flywheel/v0/output```.
-  * The "input" directory (mounted within the container at ```/flywheel/v0/input/```) should contain only the file you wish to 'deface'.
-  * Only the first file found in the input directory will be run through the algorithm.
+  * You are mounting the directory (using the ```-v``` flag) which contains the input data in the container at ```/flywheel/v0/input/nifti``` and mounting the directory where you want your output data within the container at ```/flywheel/v0/output```.
+  * The "input" directory (mounted within the container at ```/flywheel/v0/input/nifti```) should contain only the file you wish to perform the quality metrics on.
   * No input arguments are required for the container to be executed
+  * If a Structural (T1w or T2w) MRI image is given as input, the filename needs to be in BIDS format OR a config file indicating the input image is "Structural" must be generated (```/flywheel/v0/config.json```)
+
