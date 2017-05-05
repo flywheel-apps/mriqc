@@ -107,8 +107,8 @@ fi
 # Move html report to the output directory and rename to match the original input filename
 cp $OUTPUT_DIR/reports/$outfilename $ROOTOUT_DIR/$filename'_mriqc.qa.html'
 # Remove the working directory
-#rm -r $WORKING_DIR
-#rm -r $OUTPUT_DIR
+rm -r $WORKING_DIR
+rm -r $OUTPUT_DIR
 
 # Get a list of the files in the output directory
 outputs=`find $ROOTOUT_DIR -type f -name "*"`
