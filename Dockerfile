@@ -1,7 +1,7 @@
-# flywheel/mriqc
+#flywheel/mriqc
 
 # Get the MRIQC algorithm from DockerHub
-FROM poldracklab/mriqc:0.9.0-0
+FROM poldracklab/mriqc:0.9.4
 MAINTAINER Jennifer Reiter <jenniferreiter@invenshure.com>
 
 # Install wget
