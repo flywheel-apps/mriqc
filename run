@@ -42,7 +42,8 @@ if [[ $filename =~ $bids_func_re ]]; then
     measurement="Functional"
 elif [[ $filename =~ $bids_anat_re ]]; then
     bids_compliant=true
-    measurement="Structural"
+    # measurement is either T1w or T2w
+    measurement="${filename:(-3)}"
 # Otherwise, not BIDS compliant -- need to determine measurement (Functional or Structural) from config file
 else
     bids_compliant=false
@@ -76,8 +77,8 @@ else
         # Make the file description the most basic form in BIDS format for Functional images
         filedesc='_task-_bold'
     else
-        # Make the file description T1w -- in general, structural
-        filedesc='_T1w'
+        # The file description is either T1w or T2w (which is the measurement value)
+        filedesc='_'$measurement
     fi
 fi
 
@@ -118,7 +119,7 @@ if [[ -z $outputs ]]
         echo "No results found in output directory... Exiting"
         exit 1
     else
-        echo -e "{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$filename'_mriqc.qa.html'"\", \"type\": \"qa\", \"measurements\": [\"Functional\"]}]}}" > $ROOTOUT_DIR/.metadata.json
+        echo -e "{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$filename'_mriqc.qa.html'"\", \"type\": \"qa\", \"measurements\": [\""$measurement"\"]}]}}" > $ROOTOUT_DIR/.metadata.json
         chmod -R 777 $ROOTOUT_DIR
         echo -e "Wrote: `ls $ROOTOUT_DIR`"
 fi

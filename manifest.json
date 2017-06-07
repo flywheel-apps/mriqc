@@ -3,7 +3,7 @@
     "config": {
         "measurement": {
             "default": "Functional", 
-            "description": "Type of input image. Can be either 'Functional' or 'Structural' (default='Functional').", 
+            "description": "Type of input image. Can be either 'T1w', 'T2w' or 'Functional' (default='Functional').", 
             "type": "string"
         }
     }, 
