@@ -27,7 +27,7 @@
       }
     }
   },
-  "label": "MRIQC: No-Reference Image Quality Metrics for MRI (v0.9.4)",
+  "label": "MRIQC: No-reference image quality metrics for quality assessment of MRI (v0.9.4)",
   "license": "BSD-3-Clause",
   "maintainer": "Flywheel <support@flywheel.io>",
   "name": "mriqc",
