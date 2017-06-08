@@ -1,5 +1,5 @@
 {
-  "author": "Poldrack Lab, Stanford University",
+  "author": "Oscar Esteban and Krzysztof F. Gorgolewski. Stanford University",
   "config": {
     "measurement": {
       "default": "Functional",
@@ -27,9 +27,9 @@
       }
     }
   },
-  "label": "MRIQC: NR-IQMs for Structural (T1w, T2w) or Functional MRI (v0.9.4)",
+  "label": "MRIQC: No-Reference Image Quality Metrics for MRI (v0.9.4)",
   "license": "BSD-3-Clause",
-  "maintainer": "Flywheel <support@flyweel.io>",
+  "maintainer": "Flywheel <support@flywheel.io>",
   "name": "mriqc",
   "source": "https://github.com/flywheel-apps/mriqc",
   "url": "https://github.com/poldracklab/mriqc",
