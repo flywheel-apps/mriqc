@@ -7,6 +7,9 @@ MAINTAINER Flywheel <support@flywheel.io>
 # Install jq to parse the JSON config file
 RUN apt-get update && apt-get -y install jq
 
+# Prevent FindFont user warnings
+RUN rm -rf ~/.cache/matplotlib/*
+
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0
 RUN mkdir -p ${FLYWHEEL}
