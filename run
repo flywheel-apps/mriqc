@@ -1,17 +1,41 @@
 #! /bin/bash
-# This script is meant to evoke the algorithm without requiring any input arguments
+#
+#
+# @Authorship: Jennifer Reiter
+# Flywheel 2017
+#
 #
 
-# Define directory names and containers
+
+################################################################################
+# DEFINE VARIABLES
+
 FLYWHEEL_BASE=/flywheel/v0
+MANIFEST_FILE=$FLYWHEEL_BASE/manifest.json
+CONFIG_FILE=$FLYWHEEL_BASE/config.json
 INPUT_DIR=$FLYWHEEL_BASE/input/nifti
 ROOTOUT_DIR=$FLYWHEEL_BASE/output
 OUTPUT_DIR=$ROOTOUT_DIR/out
 WORKING_DIR=$ROOTOUT_DIR/work
 CONTAINER='[flywheel/mriqc]'
 
-# Configure the ENV according to the original Docker image
+
+################################################################################
+# CONFIGURE ENV
+
 source ${FLYWHEEL_BASE}/docker-env.sh
+source /etc/fsl/fsl.sh
+source /etc/afni/afni.sh
+
+
+################################################################################
+# LOGGING
+
+# exec > >(tee -i $FLYWHEEL/output/stdout.log) 2> >(tee -i $FLYWHEEL/output/stderr.log >&2)
+
+
+################################################################################
+# VALIDATE INPUT DATA
 
 # Check if the input directory is not empty
 if [[ "$(ls -A $INPUT_DIR)" ]] ; then
@@ -27,48 +51,97 @@ bni=`basename "$input_file"`
 filename="${bni%%.*}"
 inextension="${bni#*.}"
 
-# If input file found
+# If input file not found, raise error
 if [[ ! -e $input_file ]]; then
     echo "No Nifti files (.nii or .nii.gz) were found within input directory $INPUT_DIR"
     exit 1
 fi
 
-## Check if the input filename is already BIDS compliant
+
+################################################################################
+## CHECK FOR BIDS COMPLIANCE
+
 bids_func_re="sub-[0-9a-zA-Z]+_task-[0-9a-zA-Z]+(_acq-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?_bold"
+bids_anat_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?(_acq-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?_[T1w|T2w]"
+
 if [[ $filename =~ $bids_func_re ]]; then
+    bids_compliant=true
+    measurement="Functional"
+
+elif [[ $filename =~ $bids_anat_re ]]; then
+    bids_compliant=true
+    # measurement is either T1w or T2w
+    measurement="${filename:(-3)}"
+
+else
+    # Not BIDS compliant -- need to determine measurement (Functional or Structural) from config file
+    bids_compliant=false
+
+    # Check config file for measurement
+    if [[ -e $CONFIG_FILE ]]; then
+        measurement=`cat $CONFIG_FILE | jq -r '.config.measurement'`
+    # If no config file present, get default from manifest file
+    else
+        measurement=`cat $MANIFEST_FILE | jq -r '.config.measurement.default'`
+    fi
+fi
+
+# Define BIDS subdirectory based on measurement type
+if [[ $measurement = 'Functional' ]]; then
+    subdirname='func'
+else
+    subdirname='anat'
+fi
+
+
+################################################################################
+# DEFINE BIDS FEATURES BASED ON SPEC
+
+if [[ $bids_compliant = 'true' ]]; then
     # Since BIDS compliant -- extract the participant label number and description of the file
     #   participant label to be used in naming scheme as well as being passed to algorithm as a command line argument
     tmp="${filename#sub-*}"
     PARTICIPANT_LABEL="${tmp%%_*}"
-   # Get the file description for BIDS format (Functional: task-<task_label>[_acq-<label>_rec-<label>_run<index>]_bold)
+    # Get the file description for BIDS format (Functional: task-<task_label>[_acq-<label>_rec-<label>_run<index>]_bold)
     filedesc="${tmp#$PARTICIPANT_LABEL}"
-# Otherwise, not BIDS compliant
 else
-    # Pull out all letters and numbers from input filename to be used as participant label
+    # Since NOT BIDS compliant-- extract all letters and numbers from input filename to be used as participant label
     PARTICIPANT_LABEL="${filename//[!0-9a-zA-Z]}"
-    # Make the file description the most basic form in BIDS format
-    filedesc=_task-_bold
+    if [[ $measurement = 'Functional' ]]; then
+        # Make the file description the most basic form in BIDS format for Functional images
+        filedesc='_task-_bold'
+    else
+        # The file description is either T1w or T2w (which is the measurement value)
+        filedesc='_'$measurement
+    fi
 fi
 
-## Create a BIDS format directory to be ingested by MRIQC
+
+################################################################################
+# CREATE A BIDS FORMATTED DIRECTORY
+
 # Define top level dir
 BIDS_DIR=$WORKING_DIR/sub-$PARTICIPANT_LABEL
-# Define the sub directory (Functional: func)
-subdirname='func'
+
 # Define subdir and bids_file
 BIDS_SUBDIR=$BIDS_DIR/$subdirname
 bids_file=sub-$PARTICIPANT_LABEL$filedesc.$inextension
 mkdir -p $BIDS_SUBDIR
+
 # Change filename to be in BIDS format (may already be in BIDS format)
 cp $input_file $BIDS_SUBDIR/$bids_file
 
-# Call MRIQC software
-source /etc/fsl/fsl.sh
-source /etc/afni/afni.sh
+
+################################################################################
+# RUN MRIQC
+
 /usr/local/miniconda/bin/mriqc $BIDS_DIR $OUTPUT_DIR participant -w $WORKING_DIR --participant_label $PARTICIPANT_LABEL
 
-# Cleanup outputs
-# Define the expected output report filename generated by mriqc
+
+################################################################################
+# CLEANUP OUTPUTS & GENERATE METADATA
+
+# Define the expected output report filename generated by mriqc - NOTE: strange case with Functional file desc
 if [[ $filedesc == "_task-_bold" ]]; then
     outfilename=sub-$PARTICIPANT_LABEL'_bold.html'
 else
@@ -77,6 +150,7 @@ fi
 
 # Move html report to the output directory and rename to match the original input filename
 cp $OUTPUT_DIR/reports/$outfilename $ROOTOUT_DIR/$filename'_mriqc.qa.html'
+
 # Remove the working directory
 rm -r $WORKING_DIR
 rm -r $OUTPUT_DIR
@@ -89,7 +163,8 @@ if [[ -z $outputs ]]
         echo "No results found in output directory... Exiting"
         exit 1
     else
-        echo -e "{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$filename'_mriqc.qa.html'"\", \"type\": \"qa\", \"measurements\": [\"Functional\"]}]}}" > $ROOTOUT_DIR/.metadata.json
+        # Metadata Creation
+        echo -e "{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$filename'_mriqc.qa.html'"\", \"type\": \"qa\", \"measurements\": [\""$measurement"\"]}]}}" > $ROOTOUT_DIR/.metadata.json
         chmod -R 777 $ROOTOUT_DIR
         echo -e "Wrote: `ls $ROOTOUT_DIR`"
 fi
