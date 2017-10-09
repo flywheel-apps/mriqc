@@ -101,10 +101,7 @@ else
     if [[ $measurement = 'auto-detect' ]]; then
         echo "Auto-detecting input file measurement"
         # Get measurement from config
-        measurement=`cat $CONFIG_FILE | jq '.inputs.nifti.object.measurements[0]'`
-        # Remove leading and trailing double quotes (Measurement is read in by JQ as "functional" but want it to be functional)
-        temp="${measurement%\"}"
-        measurement="${temp#\"}"
+        measurement=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.measurements[0]'`
         # Check if measurement is null
         if [[ "$measurement" = "null" ]]; then
             measurement="functional"
