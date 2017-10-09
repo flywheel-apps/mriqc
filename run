@@ -122,7 +122,6 @@ fi
 # DEFINE BIDS LABELS
 
 # Define BIDS subdirectory based on measurement type
-echo "MEASUREMENT IS CURRENTLY $measurement"
 if [[ "$measurement" = 'anatomy_t1w' ]]; then
     subdirname='anat'
 elif [[ "$measurement" = 'anatomy_t2w' ]]; then
