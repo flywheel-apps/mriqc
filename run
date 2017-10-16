@@ -102,27 +102,22 @@ else
         echo "Auto-detecting input file measurement"
         # Get measurement from context
         measurement=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.measurements[0]'`
-        # Check if measurement is null
-        if [[ "$measurement" = "null" ]]; then
-            measurement="functional"
-            echo "Input file measurement is null, assigning measurement as $measurement"
-        else
-            # Check if measurement that is read in is either anatomy_t1w, anatomy_t2w, or functional
-            measurementArray=(functional anatomy_t1w anatomy_t2w)
-            # Determine if measurement
-            found=false
-            for item in "${measurementArray[@]}"; do
-                if [[ $measurement == $item ]]; then
-                    found=true
-                fi
-            done
-            if $found; then
-                echo "Auto-detected input file measurement as $measurement"
-            else
-                echo "Auto-detected measurement is $measurement"
-                echo "MRIQC algorithm will not run, measurement is not anatomy_t1w, anatomy_t2w, or functional"
-                exit 1
+        # Check if measurement that is read in is either anatomy_t1w, anatomy_t2w, or functional
+        measurementArray=(functional anatomy_t1w anatomy_t2w)
+        # Determine if measurement
+        found=false
+        for item in "${measurementArray[@]}"; do
+            if [[ $measurement == $item ]]; then
+                found=true
             fi
+        done
+        if $found; then
+            echo "Auto-detected input file measurement as $measurement"
+        else
+            echo "Auto-detected measurement is $measurement"
+            echo "Measurement needs to be 'anatomy_t1w', 'anatomy_t2w', or 'functional'"
+            echo "MRIQC algorithm will not run - nothing to do - exit(0)"
+            exit 0
         fi
     else
     # Not auto-detecting measurement - measurement what was given by user
