@@ -66,16 +66,27 @@ bids_anat_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?(_acq-[0-9a-zA-Z]+)?(_rec-[0-9
 
 if [[ $filename =~ $bids_func_re ]]; then
     bids_compliant=true
-    measurement="Functional"
+    measurement="functional"
+    echo "Input filename is in BIDS format for a $measurement image"
 
 elif [[ $filename =~ $bids_anat_re ]]; then
     bids_compliant=true
-    # measurement is either T1w or T2w
-    measurement="${filename:(-3)}"
+    # measurement is either anatomy_t1w or antomy_t2w
+    # get end of file, if it's T1w or T2w
+    # Transform T1w/T2w -> anatomy_t1w/anatomy_t2w
+    desc="${filename:(-3)}"
+    if [[ $desc = 'T1w' ]]; then
+        measurement='anatomy_t1w'
+    fi
+    if [[ $desc = 'T2w' ]]; then
+        measurement='anatomy_t2w'
+    fi
+    echo "Input filename is in BIDS format for an $measurement image"
 
 else
-    # Not BIDS compliant -- need to determine measurement (Functional or Structural) from config file
+    # Not BIDS compliant -- need to determine measurement (functional, anatomy_t1w, or anatomy_t2w) from config file
     bids_compliant=false
+    echo "Input filename is not in BIDS format. Detecting measurement..."
 
     # Check config file for measurement
     if [[ -e $CONFIG_FILE ]]; then
@@ -84,35 +95,71 @@ else
     else
         measurement=`cat $MANIFEST_FILE | jq -r '.config.measurement.default'`
     fi
-fi
 
-# Define BIDS subdirectory based on measurement type
-if [[ $measurement = 'Functional' ]]; then
-    subdirname='func'
-else
-    subdirname='anat'
+    ## Determine measurement
+    # Check if autodetect, otherwise use what was read in from config.json/manifest.json
+    if [[ $measurement = 'auto-detect' ]]; then
+        echo "Auto-detecting input file measurement"
+        # Get measurement from context
+        measurement=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.measurements[0]'`
+        # Check if measurement that is read in is either anatomy_t1w, anatomy_t2w, or functional
+        measurementArray=(functional anatomy_t1w anatomy_t2w)
+        # Determine if measurement
+        found=false
+        for item in "${measurementArray[@]}"; do
+            if [[ $measurement == $item ]]; then
+                found=true
+            fi
+        done
+        if $found; then
+            echo "Auto-detected input file measurement as $measurement"
+        else
+            echo "Auto-detected measurement is $measurement"
+            echo "Measurement needs to be 'anatomy_t1w', 'anatomy_t2w', or 'functional'"
+            echo "MRIQC algorithm will not run - nothing to do - exit(0)"
+            exit 0
+        fi
+    else
+    # Not auto-detecting measurement - measurement what was given by user
+        echo "File measurement indicated by user. Measurement is $measurement"
+    fi
 fi
-
 
 ################################################################################
-# DEFINE BIDS FEATURES BASED ON SPEC
+# DEFINE BIDS LABELS
+
+# Define BIDS subdirectory based on measurement type
+if [[ "$measurement" = 'anatomy_t1w' ]]; then
+    subdirname='anat'
+elif [[ "$measurement" = 'anatomy_t2w' ]]; then
+    subdirname='anat'
+else
+    subdirname='func'
+fi
 
 if [[ $bids_compliant = 'true' ]]; then
     # Since BIDS compliant -- extract the participant label number and description of the file
     #   participant label to be used in naming scheme as well as being passed to algorithm as a command line argument
     tmp="${filename#sub-*}"
     PARTICIPANT_LABEL="${tmp%%_*}"
-    # Get the file description for BIDS format (Functional: task-<task_label>[_acq-<label>_rec-<label>_run<index>]_bold)
+    # Get the file description for BIDS format (functional: task-<task_label>[_acq-<label>_rec-<label>_run<index>]_bold)
     filedesc="${tmp#$PARTICIPANT_LABEL}"
 else
     # Since NOT BIDS compliant-- extract all letters and numbers from input filename to be used as participant label
     PARTICIPANT_LABEL="${filename//[!0-9a-zA-Z]}"
-    if [[ $measurement = 'Functional' ]]; then
-        # Make the file description the most basic form in BIDS format for Functional images
+    # Determine the file description at the end of the filename
+    if [[ $measurement = "functional" ]]; then
+        # Make the file description the most basic form in BIDS format for functional images
         filedesc='_task-_bold'
     else
-        # The file description is either T1w or T2w (which is the measurement value)
-        filedesc='_'$measurement
+        # The file description is T1w if measurement is 'anatomy_t1w'
+        if [[ $measurement == "anatomy_t1w" ]]; then
+            filedesc='_T1w'
+        fi
+        # The file description is T2w if measurement is 'anatomy_t2w'
+        if [[ $measurement == "anatomy_t2w" ]]; then
+            filedesc='_T2w'
+        fi
     fi
 fi
 
@@ -136,7 +183,6 @@ cp $input_file $BIDS_SUBDIR/$bids_file
 # RUN MRIQC
 
 /usr/local/miniconda/bin/mriqc $BIDS_DIR $OUTPUT_DIR participant -w $WORKING_DIR --participant_label $PARTICIPANT_LABEL
-
 
 ################################################################################
 # CLEANUP OUTPUTS & GENERATE METADATA
