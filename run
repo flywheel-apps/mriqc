@@ -61,8 +61,8 @@ fi
 ################################################################################
 ## CHECK FOR BIDS COMPLIANCE
 
-bids_func_re="sub-[0-9a-zA-Z]+_task-[0-9a-zA-Z]+(_acq-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?_bold"
-bids_anat_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?(_acq-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?_[T1w|T2w]"
+bids_func_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?_task-[0-9a-zA-Z]+(_acq-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?(_echo-[0-9]+)?_bold"
+bids_anat_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?(_acq-[0-9a-zA-Z]+)?(_ce-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?(_mod-[0-9a-zA-Z]+)?_[T1w|T2w]"
 
 if [[ $filename =~ $bids_func_re ]]; then
     bids_compliant=true
