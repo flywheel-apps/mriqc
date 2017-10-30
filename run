@@ -48,8 +48,8 @@ fi
 # Find input file in input directory with the extension .nii, .nii.gz
 input_file=`find $INPUT_DIR -iname '*.nii' -o -iname '*.nii.gz'`
 bni=`basename "$input_file"`
-filename="${bni%%.*}"
-inextension="${bni#*.}"
+filename="${bni%%.nii*}"
+inextension="${bni#$filename.}"
 
 # If input file not found, raise error
 if [[ ! -e $input_file ]]; then
