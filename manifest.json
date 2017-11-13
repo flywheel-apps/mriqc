@@ -15,7 +15,7 @@
     }
   },
   "custom": {
-    "docker-image": "flywheel/mriqc:v0.3.2"
+    "docker-image": "flywheel/mriqc:v0.3.3"
   },
   "description": "MRIQC extracts no-reference IQMs (image quality metrics) from structural (T1w and T2w) and functional MRI (magnetic resonance imaging) data. Note, this gear only supports the generation of individual scan reports; group reports are not generated.",
   "inputs": {
@@ -35,5 +35,5 @@
   "name": "mriqc",
   "source": "https://github.com/flywheel-apps/mriqc",
   "url": "https://github.com/poldracklab/mriqc",
-  "version": "0.3.2"
+  "version": "0.3.3rc1"
 }
