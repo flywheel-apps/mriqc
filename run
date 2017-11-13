@@ -180,7 +180,7 @@ bids_file=sub-$PARTICIPANT_LABEL$filedesc.$inextension
 mkdir -p $BIDS_SUBDIR
 
 # Change filename to be in BIDS format (may already be in BIDS format)
-cp $input_file $BIDS_SUBDIR/$bids_file
+cp "$input_file" $BIDS_SUBDIR/$bids_file
 
 
 ################################################################################
@@ -199,7 +199,7 @@ else
 fi
 
 # Move html report to the output directory and rename to match the original input filename
-cp $OUTPUT_DIR/reports/$outfilename $ROOTOUT_DIR/$filename'_mriqc.qa.html'
+cp "$OUTPUT_DIR"/reports/"$outfilename" "$ROOTOUT_DIR"/"$filename"'_mriqc.qa.html'
 
 # Remove the working directory
 rm -r $WORKING_DIR
