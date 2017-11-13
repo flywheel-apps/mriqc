@@ -91,6 +91,8 @@ else
     # Check config file for measurement
     if [[ -e $CONFIG_FILE ]]; then
         measurement=`cat $CONFIG_FILE | jq -r '.config.measurement'`
+        # Make measurement all lowercase
+        measurement=`echo ${measurement} | tr '[:upper:]' '[:lower:]'`
     # If no config file present, get default from manifest file
     else
         measurement=`cat $MANIFEST_FILE | jq -r '.config.measurement.default'`
@@ -102,6 +104,8 @@ else
         echo "Auto-detecting input file measurement"
         # Get measurement from context
         measurement=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.measurements[0]'`
+        # Make measurement all lowercase
+        measurement=`echo ${measurement} | tr '[:upper:]' '[:lower:]'`
         # Check if measurement that is read in is either anatomy_t1w, anatomy_t2w, or functional
         measurementArray=(functional anatomy_t1w anatomy_t2w)
         # Determine if measurement
