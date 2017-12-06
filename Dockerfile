@@ -5,7 +5,8 @@ FROM poldracklab/mriqc:0.9.4
 MAINTAINER Flywheel <support@flywheel.io>
 
 # Install jq to parse the JSON config file
-RUN apt-get update && apt-get -y install jq
+RUN apt-get update && apt-get -y install jq \
+					zip
 
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0
