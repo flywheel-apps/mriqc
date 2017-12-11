@@ -48,7 +48,7 @@ if [[ "$(ls -A $INPUT_DIR)" ]] ; then
     echo "$CONTAINER  Starting..."
 else
     echo "Input directory is empty: $INPUT_DIR"
-    exit 1
+    exit 17
 fi
 
 # Find input file in input directory with the extension .nii, .nii.gz
@@ -60,7 +60,7 @@ inextension="${bni#$filename.}"
 # If input file not found, raise error
 if [[ ! -e $input_file ]]; then
     echo "No Nifti files (.nii or .nii.gz) were found within input directory $INPUT_DIR"
-    exit 1
+    exit 17
 fi
 
 
@@ -100,31 +100,46 @@ else
     ## Determine measurement
     # Check if autodetect, otherwise use what was read in from config.json/manifest.json
     if [[ $config_measurement = 'auto-detect' ]]; then
+        auto_detect=true
         echo "Auto-detecting input file measurement"
         # Get measurement from context
         config_measurement=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.measurements[0]'`
-        # Make measurement all lowercase
-        config_measurement=`echo ${config_measurement} | tr '[:upper:]' '[:lower:]'`
-        # Check if measurement that is read in is either anatomy_t1w, anatomy_t2w, or functional
-        measurementArray=(functional anatomy_t1w anatomy_t2w)
-        # Determine if measurement
-        found=false
-        for item in "${measurementArray[@]}"; do
-            if [[ $config_measurement == $item ]]; then
-                found=true
-            fi
-        done
-        if $found; then
-            echo "Auto-detected input file measurement as $config_measurement"
-        else
-            echo "Auto-detected measurement is $config_measurement"
-            echo "Measurement needs to be 'anatomy_t1w', 'anatomy_t2w', or 'functional'"
-            echo "MRIQC algorithm will not run - nothing to do - exit(0)"
-            exit 0
-        fi
     else
-    # Not auto-detecting measurement - measurement what was given by user
-        echo "File measurement indicated by user. Measurement is $config_measurement"
+        auto_detect=false
+        # Not auto-detecting measurement - measurement what was given by user
+        echo "File measurement indicated by user"
+    fi
+
+    ## Determine if measurement is valid
+    # Make measurement all lowercase
+    config_measurement=`echo ${config_measurement} | tr '[:upper:]' '[:lower:]'`
+    # Make array of allowable options
+    measurementArray=(functional anatomy_t1w anatomy_t2w)
+    found=false
+    for item in "${measurementArray[@]}"; do
+        if [[ $config_measurement == $item ]]; then
+            found=true
+        fi
+    done
+
+    # If found, print out measurement
+    if $found; then
+        echo "File measurement is $config_measurement"
+    # Otherwise, print info and raise an error
+    else
+        # Print info
+        echo "File measurement is $config_measurement"
+        echo "Measurement needs to be 'anatomy_t1w', 'anatomy_t2w', or 'functional'"
+
+        if $auto_detect; then
+            # If auto-detected -- then input is wrong (exit code 17)
+            echo "MRIQC algorithm will not run - nothing to do - exit(17)"
+            exit 17
+        else
+            # If user indicated --- then option is wrong (exit code 18)
+            echo "MRIQC algorithm will not run - file measurement is not correct - exit(18)"
+            exit 18
+        fi
     fi
 fi
 
