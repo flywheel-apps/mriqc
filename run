@@ -200,7 +200,14 @@ cp "$input_file" $BIDS_SUBDIR/$bids_file
 ################################################################################
 # RUN MRIQC
 
-time /usr/local/miniconda/bin/mriqc $BIDS_DIR $OUTPUT_DIR participant -w $WORKING_DIR --participant_label $PARTICIPANT_LABEL
+if [[ $config_verbose_reports == "true" ]]; then
+    VERBOSE_REPORTS='--verbose-reports'
+else
+    VERBOSE_REPORTS=''
+fi
+
+/usr/local/miniconda/bin/mriqc -version
+time /usr/local/miniconda/bin/mriqc --no-sub $VERBOSE_REPORTS $BIDS_DIR $OUTPUT_DIR participant -w $WORKING_DIR --participant_label $PARTICIPANT_LABEL
 MRIQC_EXITSTATUS=$?
 
 ################################################################################
