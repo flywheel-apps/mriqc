@@ -219,7 +219,7 @@ fi
 if [[ $MRIQC_EXITSTATUS == 0 ]]; then
   # Define report, zip and derivative filename
   report_filename="$filename"_mriqc.qa.html
-  zip_filename="$filename"_mriqc_output
+  zip_filename="$filename"_mriqc_output.zip
   deriv_filename="$filename"_mriqc.json
 
   # Read in values within derivatives JSON
@@ -232,7 +232,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
     cd "$ROOTOUT_DIR"
     zip -r "$ROOTOUT_DIR"/"$zip_filename" *
     # Add to the metadatajson string for zip_filename
-    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename".zip\", \"type\": \"qa\",\"measurements\": [\""$config_measurement"\"]}"
+    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename"\", \"type\": \"qa\",\"measurements\": [\""$config_measurement"\"]}"
   fi
 
   # Check if save derivatives config present, if so, copy file to root level directory
