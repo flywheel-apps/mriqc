@@ -23,12 +23,6 @@ CONTAINER='[flywheel/mriqc]'
 
 source ${FLYWHEEL_BASE}/docker-env.sh
 source /etc/fsl/fsl.sh
-source /etc/afni/afni.sh
-
-################################################################################
-# LOGGING
-
-# exec > >(tee -i $FLYWHEEL/output/stdout.log) 2> >(tee -i $FLYWHEEL/output/stderr.log >&2)
 
 ##############################################################################
 # Parse configuration
@@ -206,7 +200,7 @@ else
     VERBOSE_REPORTS=''
 fi
 
-/usr/local/miniconda/bin/mriqc -version
+/usr/local/miniconda/bin/mriqc --version
 time /usr/local/miniconda/bin/mriqc --no-sub $VERBOSE_REPORTS $BIDS_DIR $OUTPUT_DIR participant -w $WORKING_DIR --participant_label $PARTICIPANT_LABEL
 MRIQC_EXITSTATUS=$?
 
