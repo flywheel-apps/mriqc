@@ -97,7 +97,18 @@ else
         auto_detect=true
         echo "Auto-detecting input file measurement"
         # Get measurement from context
-        config_measurement=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.measurements[0]'`
+        intent=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.classification.Intent[0]'`
+        contrast=`cat $CONFIG_FILE | jq -r '.inputs.nifti.object.classification.Contrast[0]'`
+        if [[ $intent = 'Functional' ]]; then
+            config_measurement=functional
+        elif [[ $intent = 'Structural' ]]; then
+            if [[ $contrast = 'T1' ]]; then
+                config_measurement=anatomy_t1w
+            elif [[ $contrast = 'T2' ]]; then
+                config_measurement=anatomy_t2w
+            fi
+        fi
+
     else
         auto_detect=false
         # Not auto-detecting measurement - measurement what was given by user
