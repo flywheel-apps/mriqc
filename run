@@ -115,20 +115,26 @@ else
         echo "File measurement indicated by user"
     fi
 
-    ## Determine if measurement is valid
+    ## Determine if measurement is valid, and assign classification
     # Make measurement all lowercase
     config_measurement=`echo ${config_measurement} | tr '[:upper:]' '[:lower:]'`
-    # Make array of allowable options
-    measurementArray=(functional anatomy_t1w anatomy_t2w)
-    found=false
-    for item in "${measurementArray[@]}"; do
-        if [[ $config_measurement == $item ]]; then
-            found=true
-        fi
-    done
+    config_classification=""
+    case "$config_measurement" in
+        functional)
+            config_classification="{\"Intent\":[\"Functional\"],\"Contrast\":[\"T2*\"]}"
+            ;;
+
+        anatomy_t1w)
+            config_classification="{\"Intent\":[\"Structural\"],\"Contrast\":[\"T1\"]}"
+            ;;
+
+        anatomy_t2w)
+            config_classification="{\"Intent\":[\"Structural\"],\"Contrast\":[\"T2\"]}"
+            ;;
+    esac
 
     # If found, print out measurement
-    if $found; then
+    if [[ ! -z "$config_classification" ]]; then
         echo "File measurement is $config_measurement"
     # Otherwise, print info and raise an error
     else
@@ -236,7 +242,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
 
   # Read in values within derivatives JSON
   deriv_info=`jq '.' "$OUTPUT_DIR/derivatives/$outderivative"`
-  metadatajson_string="{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$report_filename"\",\"type\": \"qa\",\"measurements\": [\""$config_measurement"\"],\"info\" : $deriv_info}"
+  metadatajson_string="{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$report_filename"\",\"type\": \"qa\",\"classification\": $config_classification,\"info\" : $deriv_info}"
 
   # Check if save outputs config present, if so zip up all outputs
   if [ $config_save_outputs == 'true' ]; then
@@ -244,7 +250,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
     cd "$ROOTOUT_DIR"
     zip -r "$ROOTOUT_DIR"/"$zip_filename" *
     # Add to the metadatajson string for zip_filename
-    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename"\", \"type\": \"qa\",\"measurements\": [\""$config_measurement"\"]}"
+    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename"\", \"type\": \"qa\",\"classification\": $config_classification}"
   fi
 
   # Check if save derivatives config present, if so, copy file to root level directory
@@ -252,7 +258,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
     # Move derivative JSON to the output directory and rename to match the original input filename
     cp "$OUTPUT_DIR"/derivatives/"$outderivative" "$ROOTOUT_DIR"/"$deriv_filename"
     # Add to the metadatajson string for deriv_filename
-    metadatajson_string=$metadatajson_string",{ \"name\" : \""$deriv_filename"\", \"type\": \"qa\",\"measurements\": [\""$config_measurement"\"]}"
+    metadatajson_string=$metadatajson_string",{ \"name\" : \""$deriv_filename"\", \"type\": \"qa\",\"classification\": $config_classification}"
   fi
 
   # Add the closing brackets to metadata string
