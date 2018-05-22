@@ -71,23 +71,23 @@ if [[ $filename =~ $bids_func_re ]]; then
 
 elif [[ $filename =~ $bids_anat_re ]]; then
     bids_compliant=true
-    # measurement is either anatomy_t1w or antomy_t2w
+    # measurement is either t1 or t2
     # get end of file, if it's T1w or T2w
     # Transform T1w/T2w -> anatomy_t1w/anatomy_t2w
     desc="${filename:(-3)}"
     if [[ $desc = 'T1w' ]]; then
-        config_measurement='anatomy_t1w'
+        config_measurement='t1'
     fi
     if [[ $desc = 'T2w' ]]; then
-        config_measurement='anatomy_t2w'
+        config_measurement='t2'
     fi
     echo "Input filename is in BIDS format for an $config_measurement image"
 
 else
-    # Not BIDS compliant -- need to determine measurement (functional, anatomy_t1w, or anatomy_t2w) from config file
+    # Not BIDS compliant -- need to determine measurement (functional, t1, or t2) from config file
     bids_compliant=false
     echo "Input filename is not in BIDS format. Detecting measurement..."
-    # Using measurment read from config or manifest
+    # Using measurement read from config or manifest
     #   Make measurement all lowercase
     config_measurement=`echo ${config_measurement} | tr '[:upper:]' '[:lower:]'`
 
@@ -102,10 +102,10 @@ else
         if [[ $intent = 'Functional' ]]; then
             config_measurement=functional
         elif [[ $intent = 'Structural' ]]; then
-            if [[ $measurement = 'T1' ]]; then
-                config_measurement=anatomy_t1w
-            elif [[ $measurement = 'T2' ]]; then
-                config_measurement=anatomy_t2w
+            if [[ $measurement = 't1' ]]; then
+                config_measurement=t1
+            elif [[ $measurement = 't2' ]]; then
+                config_measurement=t2
             fi
         fi
 
@@ -124,11 +124,11 @@ else
             config_classification="{\"Intent\":[\"Functional\"],\"Measurement\":[\"T2*\"]}"
             ;;
 
-        anatomy_t1w)
+        t1)
             config_classification="{\"Intent\":[\"Structural\"],\"Measurement\":[\"T1\"]}"
             ;;
 
-        anatomy_t2w)
+        t2)
             config_classification="{\"Intent\":[\"Structural\"],\"Measurement\":[\"T2\"]}"
             ;;
     esac
@@ -140,15 +140,15 @@ else
     else
         # Print info
         echo "File measurement is $config_measurement"
-        echo "Measurement needs to be 'anatomy_t1w', 'anatomy_t2w', or 'functional'"
+        echo "Measurement needs to be 'T1', 'T2', or 'functional'"
 
         if $auto_detect; then
             # If auto-detected -- then input is wrong (exit code 17)
-            echo "MRIQC algorithm will not run - nothing to do - exit(17)"
+            echo "Auto-detected measurement is not compatible with algorithm. MRIQC algorithm will not run - nothing to do - exit(17)"
             exit 17
         else
             # If user indicated --- then option is wrong (exit code 18)
-            echo "MRIQC algorithm will not run - file measurement is not correct - exit(18)"
+            echo "MRIQC algorithm will not run - input file measurement is not correct - exit(18)"
             exit 18
         fi
     fi
@@ -158,9 +158,9 @@ fi
 # DEFINE BIDS LABELS
 
 # Define BIDS subdirectory based on measurement type
-if [[ "$config_measurement" = 'anatomy_t1w' ]]; then
+if [[ "$config_measurement" = 't1' ]]; then
     subdirname='anat'
-elif [[ "$config_measurement" = 'anatomy_t2w' ]]; then
+elif [[ "$config_measurement" = 't2' ]]; then
     subdirname='anat'
 else
     subdirname='func'
@@ -182,11 +182,11 @@ else
         filedesc='_task-_bold'
     else
         # The file description is T1w if measurement is 'anatomy_t1w'
-        if [[ $config_measurement == "anatomy_t1w" ]]; then
+        if [[ $config_measurement == "t1" ]]; then
             filedesc='_T1w'
         fi
         # The file description is T2w if measurement is 'anatomy_t2w'
-        if [[ $config_measurement == "anatomy_t2w" ]]; then
+        if [[ $config_measurement == "t2" ]]; then
             filedesc='_T2w'
         fi
     fi
