@@ -102,9 +102,9 @@ else
         if [[ $intent = 'Functional' ]]; then
             config_measurement=functional
         elif [[ $intent = 'Structural' ]]; then
-            if [[ $measurement = 't1' ]]; then
+            if [[ $measurement = 'T1' ]]; then
                 config_measurement=t1
-            elif [[ $measurement = 't2' ]]; then
+            elif [[ $measurement = 'T2' ]]; then
                 config_measurement=t2
             fi
         fi
