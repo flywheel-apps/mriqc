@@ -75,15 +75,25 @@ fi
 ## CHECK FOR BIDS COMPLIANCE
 
 bids_func_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?_task-[0-9a-zA-Z]+(_acq-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?(_echo-[0-9]+)?_bold"
-bids_anat_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?(_acq-[0-9a-zA-Z]+)?(_ce-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?(_mod-[0-9a-zA-Z]+)?_[T1w|T2w]"
+bids_anat_re="sub-[0-9a-zA-Z]+(_ses-[0-9a-zA-Z]+)?(_acq-[0-9a-zA-Z]+)?(_ce-[0-9a-zA-Z]+)?(_rec-[0-9a-zA-Z]+)?(_run-[0-9]+)?(_mod-[0-9a-zA-Z]+)?_(T1w|T2w)"
 
 if [[ $filename =~ $bids_func_re ]]; then
     bids_compliant=true
+    if [[ "$filename" != "${BASH_REMATCH[0]}" ]]; then
+        # Take just the matching portion of the filename
+        filename="${BASH_REMATCH[0]}"
+        echo "Using partial filename: ${filename}"
+    fi
     config_measurement="functional"
     echo "Input filename is in BIDS format for a $config_measurement image"
 
 elif [[ $filename =~ $bids_anat_re ]]; then
     bids_compliant=true
+    if [[ "$filename" != "${BASH_REMATCH[0]}" ]]; then
+        # Take just the matching portion of the filename
+        filename="${BASH_REMATCH[0]}"
+        echo "Using partial filename: ${filename}"
+    fi
     # measurement is either t1 or t2
     # get end of file, if it's T1w or T2w
     # Transform T1w/T2w -> anatomy_t1w/anatomy_t2w
