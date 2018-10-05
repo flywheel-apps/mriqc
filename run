@@ -141,39 +141,43 @@ else
     ## Determine if measurement is valid, and assign classification
     # Make measurement all lowercase
     config_measurement=`echo ${config_measurement} | tr '[:upper:]' '[:lower:]'`
-    config_classification="\"\""
-    case "$config_measurement" in
-        functional)
-            config_classification="{\"Intent\":[\"Functional\"],\"Measurement\":[\"T2*\"]}"
-            ;;
+fi
 
-        t1)
-            config_classification="{\"Intent\":[\"Structural\"],\"Measurement\":[\"T1\"]}"
-            ;;
+# Set Classification
+# As of now it will write over the current classification of a file
+# TODO: Change to python so to do safer and more maintainable json manipulation
+config_classification=""
+case "$config_measurement" in
+    functional)
+        config_classification="{\"Intent\":[\"Functional\"],\"Measurement\":[\"T2*\"]}"
+        ;;
 
-        t2)
-            config_classification="{\"Intent\":[\"Structural\"],\"Measurement\":[\"T2\"]}"
-            ;;
-    esac
+    t1)
+        config_classification="{\"Intent\":[\"Structural\"],\"Measurement\":[\"T1\"]}"
+        ;;
 
-    # If found, print out measurement
-    if [[ ! -z "$config_classification" ]]; then
-        echo "File measurement is $config_measurement"
-    # Otherwise, print info and raise an error
+    t2)
+        config_classification="{\"Intent\":[\"Structural\"],\"Measurement\":[\"T2\"]}"
+        ;;
+esac
+
+# If found, print out measurement
+if [[ ! -z "$config_classification" ]]; then
+    echo "File measurement is $config_measurement"
+# Otherwise, print info and raise an error
+else
+    # Print info
+    echo "File measurement is $config_measurement"
+    echo "Measurement needs to be 'T1', 'T2', or 'functional'"
+
+    if $auto_detect; then
+        # If auto-detected -- then input is wrong (exit code 17)
+        echo "Auto-detected measurement is not compatible with algorithm. MRIQC algorithm will not run - nothing to do - exit(17)"
+        exit 17
     else
-        # Print info
-        echo "File measurement is $config_measurement"
-        echo "Measurement needs to be 'T1', 'T2', or 'functional'"
-
-        if $auto_detect; then
-            # If auto-detected -- then input is wrong (exit code 17)
-            echo "Auto-detected measurement is not compatible with algorithm. MRIQC algorithm will not run - nothing to do - exit(17)"
-            exit 17
-        else
-            # If user indicated --- then option is wrong (exit code 18)
-            echo "MRIQC algorithm will not run - input file measurement is not correct - exit(18)"
-            exit 18
-        fi
+        # If user indicated --- then option is wrong (exit code 18)
+        echo "MRIQC algorithm will not run - input file measurement is not correct - exit(18)"
+        exit 18
     fi
 fi
 
