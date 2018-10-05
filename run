@@ -141,7 +141,7 @@ else
     ## Determine if measurement is valid, and assign classification
     # Make measurement all lowercase
     config_measurement=`echo ${config_measurement} | tr '[:upper:]' '[:lower:]'`
-    config_classification=""
+    config_classification="\"\""
     case "$config_measurement" in
         functional)
             config_classification="{\"Intent\":[\"Functional\"],\"Measurement\":[\"T2*\"]}"
