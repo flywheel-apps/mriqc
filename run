@@ -269,7 +269,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
 
   # Read in values within derivatives JSON
   deriv_info=`jq '.' "$OUTPUT_DIR/derivatives/$outderivative"`
-  metadatajson_string="{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$report_filename"\",\"type\": \"qa\",\"classification\": $config_classification,\"info\" : $deriv_info}"
+  metadatajson_string="{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$report_filename"\",\"type\": \"qa\", \"modality\": \"MR\", \"classification\": $config_classification,\"info\" : $deriv_info}"
 
   # Check if save outputs config present, if so zip up all outputs
   if [ $config_save_outputs == 'true' ]; then
@@ -277,7 +277,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
     cd "$ROOTOUT_DIR"
     zip -r "$ROOTOUT_DIR"/"$zip_filename" *
     # Add to the metadatajson string for zip_filename
-    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename"\", \"type\": \"qa\",\"classification\": $config_classification}"
+    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename"\", \"type\": \"qa\", \"modality\": \"MR\", \"classification\": $config_classification}"
   fi
 
   # Check if save derivatives config present, if so, copy file to root level directory
@@ -285,7 +285,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
     # Move derivative JSON to the output directory and rename to match the original input filename
     cp "$OUTPUT_DIR"/derivatives/"$outderivative" "$ROOTOUT_DIR"/"$deriv_filename"
     # Add to the metadatajson string for deriv_filename
-    metadatajson_string=$metadatajson_string",{ \"name\" : \""$deriv_filename"\", \"type\": \"qa\",\"classification\": $config_classification}"
+    metadatajson_string=$metadatajson_string",{ \"name\" : \""$deriv_filename"\", \"type\": \"qa\",\"modality\": \"MR\", \"classification\": $config_classification}"
   fi
 
   # Add the closing brackets to metadata string
