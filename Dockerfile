@@ -1,7 +1,7 @@
 #flywheel/mriqc
 
 # Get the MRIQC algorithm from DockerHub
-FROM poldracklab/mriqc:0.11.0
+FROM poldracklab/mriqc:0.15.1
 MAINTAINER Flywheel <support@flywheel.io>
 
 # Install jq to parse the JSON config file
