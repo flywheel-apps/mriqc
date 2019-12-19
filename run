@@ -206,7 +206,7 @@ else
     # Determine the file description at the end of the filename
     if [[ $config_measurement = "functional" ]]; then
         # Make the file description the most basic form in BIDS format for functional images
-        filedesc='_task-_bold'
+        filedesc='_task-unknown_bold'
     else
         # The file description is T1w if measurement is 'anatomy_t1w'
         if [[ $config_measurement == "t1" ]]; then
@@ -304,7 +304,7 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
   echo -e $metadatajson_string > $ROOTOUT_DIR/.metadata.json
 fi
 
-# Cleanup
+## Cleanup
 rm -r $WORKING_DIR
 rm -r $OUTPUT_DIR
 
