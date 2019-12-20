@@ -206,7 +206,7 @@ else
     # Determine the file description at the end of the filename
     if [[ $config_measurement = "functional" ]]; then
         # Make the file description the most basic form in BIDS format for functional images
-        filedesc='_task-_bold'
+        filedesc='_task-unknown_bold'
     else
         # The file description is T1w if measurement is 'anatomy_t1w'
         if [[ $config_measurement == "t1" ]]; then
@@ -225,6 +225,7 @@ fi
 
 # Define top level dir
 BIDS_DIR=$WORKING_DIR/sub-$PARTICIPANT_LABEL
+echo "BIDS top level path is "$WORKING_DIR
 
 # Define subdir and bids_file
 BIDS_SUBDIR=$BIDS_DIR/$subdirname
@@ -234,6 +235,13 @@ mkdir -p $BIDS_SUBDIR
 # Change filename to be in BIDS format (may already be in BIDS format)
 cp "$input_file" $BIDS_SUBDIR/$bids_file
 
+# Create a dataset_description.json file
+descriptionjson_string="{\"Name\": \"MRIQC\", \"License\": \"\", \"BIDSVersion\": \"1.0.0\"}"
+echo -e $descriptionjson_string > $WORKING_DIR/dataset_description.json
+
+# Create a participants.tsv file
+#participantstsv="participant_id\n$PARTICIPANT_LABEL"
+#echo -e $participantstsv > $BIDS_DIR/participants.tsv
 
 ################################################################################
 # RUN MRIQC
@@ -245,7 +253,7 @@ else
 fi
 
 /usr/local/miniconda/bin/mriqc --version
-time /usr/local/miniconda/bin/mriqc --no-sub $VERBOSE_REPORTS $BIDS_DIR $OUTPUT_DIR participant -w $WORKING_DIR --participant_label $PARTICIPANT_LABEL
+time /usr/local/miniconda/bin/mriqc --no-sub $VERBOSE_REPORTS $WORKING_DIR $OUTPUT_DIR participant -w $WORKING_DIR --participant_label $PARTICIPANT_LABEL
 MRIQC_EXITSTATUS=$?
 
 ################################################################################
@@ -268,8 +276,8 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
   deriv_filename="$filename"_mriqc.json
 
   # Read in values within derivatives JSON
-  deriv_info=`jq '.' "$OUTPUT_DIR/derivatives/$outderivative"`
-  metadatajson_string="{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$report_filename"\",\"type\": \"qa\",\"classification\": $config_classification,\"info\" : $deriv_info}"
+  deriv_info=`jq '.' "$OUTPUT_DIR/sub-$PARTICIPANT_LABEL/$subdirname/$outderivative"`
+  metadatajson_string="{ \"acquisition\" : { \"files\" : [{ \"name\" : \""$report_filename"\",\"type\": \"qa\", \"modality\": \"MR\", \"classification\": $config_classification,\"info\" : $deriv_info}"
 
   # Check if save outputs config present, if so zip up all outputs
   if [ $config_save_outputs == 'true' ]; then
@@ -277,26 +285,26 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
     cd "$ROOTOUT_DIR"
     zip -r "$ROOTOUT_DIR"/"$zip_filename" *
     # Add to the metadatajson string for zip_filename
-    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename"\", \"type\": \"qa\",\"classification\": $config_classification}"
+    metadatajson_string=$metadatajson_string",{ \"name\" : \""$zip_filename"\", \"type\": \"qa\", \"modality\": \"MR\", \"classification\": $config_classification}"
   fi
 
   # Check if save derivatives config present, if so, copy file to root level directory
   if [ $config_save_derivatives == 'true' ]; then
     # Move derivative JSON to the output directory and rename to match the original input filename
-    cp "$OUTPUT_DIR"/derivatives/"$outderivative" "$ROOTOUT_DIR"/"$deriv_filename"
+    cp $OUTPUT_DIR/sub-$PARTICIPANT_LABEL/$subdirname/$outderivative "$ROOTOUT_DIR"/"$deriv_filename"
     # Add to the metadatajson string for deriv_filename
-    metadatajson_string=$metadatajson_string",{ \"name\" : \""$deriv_filename"\", \"type\": \"qa\",\"classification\": $config_classification}"
+    metadatajson_string=$metadatajson_string",{ \"name\" : \""$deriv_filename"\", \"type\": \"qa\",\"modality\": \"MR\", \"classification\": $config_classification}"
   fi
 
   # Add the closing brackets to metadata string
   metadatajson_string=$metadatajson_string"]}}"
   # Move html report to the output directory and rename to match the original input filename
-  cp "$OUTPUT_DIR"/reports/"$outfilename" "$ROOTOUT_DIR"/"$report_filename"
+  cp "$OUTPUT_DIR"/"$outfilename" "$ROOTOUT_DIR"/"$report_filename"
   # Write out metadatajson_string to file
   echo -e $metadatajson_string > $ROOTOUT_DIR/.metadata.json
 fi
 
-# Cleanup
+## Cleanup
 rm -r $WORKING_DIR
 rm -r $OUTPUT_DIR
 
