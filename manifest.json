@@ -52,6 +52,11 @@
       "default": false,
       "description": "Produce verbose report outputs.",
       "type": "boolean"
+    },
+    "include_rating_widget": {
+      "default": false,
+      "description": "Include the MRIQC built-in rating widget (does not function in flywheel)",
+      "type": "boolean"
     }
   }
 }
