@@ -303,9 +303,11 @@ if [[ $MRIQC_EXITSTATUS == 0 ]]; then
   cp "$OUTPUT_DIR"/"$outfilename" "$ROOTOUT_DIR"/"$report_filename"
   
   # Check and see if we need to remove the rating-widget
-  if [ config_include_rating_widget == 'false' ]; then
-    python remove_rate_widget.py "$ROOTOUT_DIR"/"$report_filename"
-        
+  if [ $config_include_rating_widget == 'false' ]; then
+    echo "Removing rating widget"
+    echo python /flywheel/v0/remove_rate_widget.py "$ROOTOUT_DIR"/"$report_filename"
+    python /flywheel/v0/remove_rate_widget.py "$ROOTOUT_DIR"/"$report_filename"
+  fi
   # Write out metadatajson_string to file
   echo -e $metadatajson_string > $ROOTOUT_DIR/.metadata.json
 fi
