@@ -9,13 +9,14 @@ RUN apt-get update && apt-get -y install jq zip
 
 # Install patched version of xvfbwrapper
 RUN pip install -q https://github.com/ehlertjd/xvfbwrapper/releases/download/0.2.9.post1/xvfbwrapper-0.2.9.post1-py2.py3-none-any.whl
+RUN pip install beautifulsoup4==4.8.2
 
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0
 RUN mkdir -p ${FLYWHEEL}
 COPY run ${FLYWHEEL}/run
 COPY manifest.json ${FLYWHEEL}/manifest.json
-
+COPY remove_rate_widget.py ${FLYWHEEL}/remove_rate_widget.py
 # ENV preservation for Flywheel Engine
 RUN env -u HOSTNAME -u PWD | \
   awk -F = '{ print "export " $1 "=\"" $2 "\"" }' > ${FLYWHEEL}/docker-env.sh
