@@ -60,13 +60,13 @@ def mount_gear_home_to_tmp():
 
 def log_singularity_details():
     """Help debug Singularity settings, including permissions and UID."""
-    log.info(f"SINGULARITY_NAME is {os.environ['SINGULARITY_NAME']}")
-    log.debug(f"UID is {os.getuid()}")
+    log.info("SINGULARITY_NAME is %s" % os.environ['SINGULARITY_NAME'])
+    log.debug("UID is %s" % os.getuid())
     log.debug("Permissions: 4=read, 2=write, 1=read")
     locs = glob("/tmp/*") + glob("/flywheel/v0/*") + glob("/home/bidsapp")
     for loc in locs:
         for prmsn in [os.R_OK, os.W_OK, os.X_OK]:
-            log.debug(f"Permission {prmsn} for {loc}: {os.access(loc,prmsn)}")
+            log.debug("Permission %s for %s: %s" % (prmsn, loc, os.access(loc, prmsn)))
         if ("gear_environ" in loc) and not os.access(loc, os.R_OK):
             log.error(
                 "Cannot read gear_environ.json. Gear will download BIDS in the wrong spot and will not wrap up properly."
@@ -82,7 +82,7 @@ def remove_previous_runs():
             log.debug("rm %s", prev)
             shutil.rmtree(prev)
     else:
-        log.debug(f"No previous runs to worry about.")
+        log.debug("No previous runs to worry about.")
 
 
 def unlink_gear_mounts():
@@ -97,4 +97,4 @@ def unlink_gear_mounts():
                 os.unlink(item)  # don't remove anything links point to
                 log.debug("unlinked {item}")
         shutil.rmtree(tmp_fw_dir)
-        log.debug(f"Removed {tmp_fw_dir}")
+        log.debug("Removed %s" % tmp_fw_dir)

@@ -1,5 +1,5 @@
 #!/bin/sh
-new_fw_dir=`python -c "import singularity; singularity.check_for_singularity()"`
+new_fw_dir=`python3 -c "import singularity; singularity.check_for_singularity()"`
 if [[ "$new_fw_dir" == "None" ]]; then
   FLYWHEEL_BASE=/flywheel/v0
   echo "Running on docker with directory: $FLYWHEEL_BASE"
