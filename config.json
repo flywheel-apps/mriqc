@@ -1,0 +1,11 @@
+{
+    "config": {
+        "measurement": "auto-detect",
+        "save_derivatives": false,
+        "save_outputs": false,
+        "verbose_reports": false,
+        "include_rating_widget": false
+    },
+    "inputs": {},
+    "destination": {}
+}

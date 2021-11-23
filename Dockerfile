@@ -14,6 +14,7 @@ RUN pip install beautifulsoup4==4.8.2
 
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0
+WORKDIR ${FLYWHEEL}
 RUN mkdir -p ${FLYWHEEL}
 COPY run ${FLYWHEEL}/run
 COPY singularity.py ${FLYWHEEL}/singularity.py

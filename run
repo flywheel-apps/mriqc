@@ -13,9 +13,12 @@ new_fw_dir=`python3 -c "import singularity; singularity.check_for_singularity()"
 if [[ "$new_fw_dir" == "None" ]]; then
   FLYWHEEL_BASE=/flywheel/v0
   echo "Running on docker with directory: $FLYWHEEL_BASE"
-else
+elif [[ "$new_fw_dir" == *"gear-temp-dir"* ]]; then
   FLYWHEEL_BASE=$new_fw_dir
   echo "Running on singularity with new temp directory: $FLYWHEEL_BASE"
+else
+  echo "Could not determine if using singularity, got '$new_fw_dir'"
+  exit 20
 fi
 
 ################################################################################
