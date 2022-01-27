@@ -58,6 +58,16 @@
       "default": false,
       "description": "Include the MRIQC built-in rating widget (does not function in flywheel)",
       "type": "boolean"
+    },
+    "slurm-cpu": {
+      "default": 1,
+      "description": "For HPC jobs, set the number of CPUs for slurm cluster/scheduler jobs.",
+      "type": "integer"
+    },
+    "slurm-ram": {
+      "defualt": 4,
+      "description": "For HPC jobs, set the amount of RAM for slurm cluster/scheduler jobs.",
+      "type": "integer"
     }
   }
 }
